@@ -1,0 +1,279 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyHub - Share & Download Study Materials</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/theme.css' %}">
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-icon">📚</span>
+      <span class="logo-text">StudyHub</span>
+    </div>
+    <nav>
+      <a href="{% url 'home' %}" class="active">Home</a>
+      <a href="{% url 'materials' %}">Materials</a>
+      <a href="{% url 'upload' %}">Upload</a>
+      {% if request.session.user_id %}
+        <a href="{% url 'logout' %}" class="nav-logout">Logout</a>
+      {% else %}
+        <a href="{% url 'login' %}" class="nav-login">Login</a>
+        <a href="{% url 'register' %}" class="nav-register">Register</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge">🎓 For Students, By Students</div>
+    <h1>Share & Discover<br><span class="accent-text">Study Materials</span></h1>
+    <p>Upload notes, download resources, and help your classmates succeed — all in one place.</p>
+
+    <div class="hero-search">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="heroSearch" placeholder="Search notes, subjects, topics...">
+      <button onclick="heroSearchRedirect()">Search</button>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num">{{ total_materials|default:"100+" }}</span>
+        <span class="stat-label">Materials</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-num">{{ total_users|default:"50+" }}</span>
+        <span class="stat-label">Students</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-num">{{ total_downloads|default:"500+" }}</span>
+        <span class="stat-label">Downloads</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── LATEST NOTES ── -->
+<section class="container">
+  <div class="section-header">
+    <h2>🕐 Latest Notes</h2>
+    <a href="{% url 'materials' %}" class="view-all">View All →</a>
+  </div>
+
+  <div class="cards-grid">
+    {% if latest_materials %}
+      {% for m in latest_materials %}
+      <div class="material-card">
+        <div class="card-top">
+          <span class="subject-tag">{% if m.subject %}{{ m.subject.subject_name }}{% else %}General{% endif %}</span>
+          <span class="file-type">{{ m.file_path|slice:"-3:"|upper }}</span>
+        </div>
+        <h3 class="card-title">{{ m.title }}</h3>
+        <p class="card-desc">{{ m.description|truncatechars:80 }}</p>
+        <div class="card-meta">
+          <span>👤 {% if m.uploaded_by %}{{ m.uploaded_by.name }}{% endif %}</span>
+          <span>📅 {{ m.upload_date|date:"d M Y" }}</span>
+        </div>
+        <div class="card-actions">
+          <a href="{% url 'materials' %}">
+            <button class="btn-view">View Details</button>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <!-- Placeholder cards when no data -->
+      <div class="material-card placeholder-card">
+        <div class="card-top"><span class="subject-tag">Python</span><span class="file-type">PDF</span></div>
+        <h3 class="card-title">Python Programming Notes</h3>
+        <p class="card-desc">Complete beginner guide for Python including variables, loops, functions and examples.</p>
+        <div class="card-meta"><span>👤 Student1</span><span>📅 20 Mar 2026</span></div>
+        <div class="card-actions"><a href="{% url 'materials' %}"><button class="btn-view">View Details</button></a></div>
+      </div>
+      <div class="material-card placeholder-card">
+        <div class="card-top"><span class="subject-tag">Security</span><span class="file-type">PDF</span></div>
+        <h3 class="card-title">Cyber Security Fundamentals</h3>
+        <p class="card-desc">Introduction to cyber security — threats, attacks, firewalls and protection techniques.</p>
+        <div class="card-meta"><span>👤 Student2</span><span>📅 18 Mar 2026</span></div>
+        <div class="card-actions"><a href="{% url 'materials' %}"><button class="btn-view">View Details</button></a></div>
+      </div>
+      <div class="material-card placeholder-card">
+        <div class="card-top"><span class="subject-tag">Data Science</span><span class="file-type">PDF</span></div>
+        <h3 class="card-title">Data Science Notes</h3>
+        <p class="card-desc">Data science concepts including data analysis, visualization and ML basics.</p>
+        <div class="card-meta"><span>👤 Student3</span><span>📅 15 Mar 2026</span></div>
+        <div class="card-actions"><a href="{% url 'materials' %}"><button class="btn-view">View Details</button></a></div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+
+<!-- ── POPULAR NOTES ── -->
+<section class="container">
+  <div class="section-header">
+    <h2>🔥 Popular Notes</h2>
+    <a href="{% url 'materials' %}" class="view-all">View All →</a>
+  </div>
+
+  <div class="cards-grid">
+    {% if popular_materials %}
+      {% for m in popular_materials %}
+      <div class="material-card popular">
+        <div class="card-top">
+          <span class="subject-tag">{% if m.subject %}{{ m.subject.subject_name }}{% else %}General{% endif %}</span>
+          <span class="popular-badge">🔥 Hot</span>
+        </div>
+        <h3 class="card-title">{{ m.title }}</h3>
+        <div class="card-stats">
+          <span>⬇️ {{ m.downloads }} downloads</span>
+          <span>⭐ {{ m.avg_rating }}/5</span>
+        </div>
+        <div class="card-actions">
+          <a href="{% url 'materials' %}">
+            <button class="btn-download">View Details</button>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="material-card popular placeholder-card">
+        <div class="card-top"><span class="subject-tag">ML</span><span class="popular-badge">🔥 Hot</span></div>
+        <h3 class="card-title">Machine Learning Basics</h3>
+        <div class="card-stats"><span>⬇️ 150 downloads</span><span>⭐ 4.0/5</span></div>
+        <div class="card-actions"><a href="{% url 'materials' %}"><button class="btn-download">View Details</button></a></div>
+      </div>
+      <div class="material-card popular placeholder-card">
+        <div class="card-top"><span class="subject-tag">Networks</span><span class="popular-badge">🔥 Hot</span></div>
+        <h3 class="card-title">Computer Networks</h3>
+        <div class="card-stats"><span>⬇️ 120 downloads</span><span>⭐ 5.0/5</span></div>
+        <div class="card-actions"><a href="{% url 'materials' %}"><button class="btn-download">View Details</button></a></div>
+      </div>
+      <div class="material-card popular placeholder-card">
+        <div class="card-top"><span class="subject-tag">DBMS</span><span class="popular-badge">🔥 Hot</span></div>
+        <h3 class="card-title">Database Management System</h3>
+        <div class="card-stats"><span>⬇️ 95 downloads</span><span>⭐ 4.0/5</span></div>
+        <div class="card-actions"><a href="{% url 'materials' %}"><button class="btn-download">View Details</button></a></div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+
+<!-- ── CATEGORIES ── -->
+<section class="container">
+  <div class="section-header">
+    <h2>📂 Study Categories</h2>
+  </div>
+
+  <div class="categories-grid">
+    <a href="{% url 'materials' %}" class="cat-card">
+      <div class="cat-icon">💻</div>
+      <h3>Programming</h3>
+      <p>Python, Java, C++, Web Dev</p>
+    </a>
+    <a href="{% url 'materials' %}" class="cat-card">
+      <div class="cat-icon">📊</div>
+      <h3>Data Science</h3>
+      <p>ML, AI, Analytics</p>
+    </a>
+    <a href="{% url 'materials' %}" class="cat-card">
+      <div class="cat-icon">🔐</div>
+      <h3>Cyber Security</h3>
+      <p>Security, Hacking, Networks</p>
+    </a>
+    <a href="{% url 'materials' %}" class="cat-card">
+      <div class="cat-icon">🗄️</div>
+      <h3>Database</h3>
+      <p>SQL, DBMS, Data Mgmt</p>
+    </a>
+    <a href="{% url 'materials' %}" class="cat-card">
+      <div class="cat-icon">🧮</div>
+      <h3>Mathematics</h3>
+      <p>Calculus, Stats, Algebra</p>
+    </a>
+    <a href="{% url 'materials' %}" class="cat-card">
+      <div class="cat-icon">🌐</div>
+      <h3>Networking</h3>
+      <p>TCP/IP, OSI, Protocols</p>
+    </a>
+  </div>
+</section>
+
+
+<!-- ── ABOUT ── -->
+<section class="about-section">
+  <div class="about-inner">
+    <div class="about-text">
+      <h2>About StudyHub</h2>
+      <p>StudyHub is an online platform where students can upload, share and download study resources such as notes, assignments, tutorials and guides.</p>
+      <p>This platform helps students collaborate and access learning materials easily. Rate and comment on materials to help others find the best resources.</p>
+      <a href="{% url 'register' %}" class="btn-join">Join Now →</a>
+    </div>
+    <div class="about-features">
+      <div class="feature">
+        <span class="feature-icon">⬆️</span>
+        <div>
+          <h4>Upload Materials</h4>
+          <p>Share your notes with students</p>
+        </div>
+      </div>
+      <div class="feature">
+        <span class="feature-icon">⬇️</span>
+        <div>
+          <h4>Download Resources</h4>
+          <p>Access thousands of notes free</p>
+        </div>
+      </div>
+      <div class="feature">
+        <span class="feature-icon">⭐</span>
+        <div>
+          <h4>Rate & Review</h4>
+          <p>Help others find the best notes</p>
+        </div>
+      </div>
+      <div class="feature">
+        <span class="feature-icon">🔍</span>
+        <div>
+          <h4>Smart Search</h4>
+          <p>Find materials by subject fast</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">
+      <span>📚</span>
+      <span class="logo-text">StudyHub</span>
+    </div>
+    <p>© 2025 StudyHub — Built for students, by students</p>
+    <div class="footer-links">
+      <a href="{% url 'materials' %}">Materials</a>
+      <a href="{% url 'upload' %}">Upload</a>
+      <a href="{% url 'register' %}">Register</a>
+    </div>
+  </div>
+</footer>
+
+<script src="{% static 'js/home.js' %}"></script>
+</body>
+</html>

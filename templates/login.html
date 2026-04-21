@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - StudyHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/theme.css' %}">
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-icon">📚</span>
+      <span class="logo-text">StudyHub</span>
+    </div>
+    <nav>
+      <a href="{% url 'home' %}">Home</a>
+      <a href="{% url 'register' %}">Register</a>
+      <a href="{% url 'materials' %}">Materials</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-wrap">
+
+  <div class="glow-orb"></div>
+
+  <div class="login-card">
+
+    <div class="card-header">
+      <div class="card-icon">🔐</div>
+      <h2>Welcome Back</h2>
+      <p>Login to access your study materials</p>
+    </div>
+
+    {% if error %}
+    <div class="alert-error">
+      ⚠️ {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'login' %}">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <div class="input-wrap">
+          <span class="input-icon">✉️</span>
+          <input type="email" id="email" name="email" placeholder="Enter your email" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="password" name="password" placeholder="Enter your password" required>
+          <button type="button" class="toggle-pass" onclick="togglePassword()">👁</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-login">Login →</button>
+
+    </form>
+
+    <p class="switch-link">
+      Don't have an account? <a href="{% url 'register' %}">Register Here</a>
+    </p>
+
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2025 StudyHub — Built for students, by students</p>
+</footer>
+
+<script>
+function togglePassword() {
+  const input = document.getElementById('password');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+</script>
+
+</body>
+</html>

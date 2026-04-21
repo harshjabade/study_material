@@ -1,0 +1,227 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Materials - StudyHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/theme.css' %}">
+<link rel="stylesheet" href="{% static 'css/materials.css' %}">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-icon">📚</span>
+      <span class="logo-text">StudyHub</span>
+    </div>
+    <nav>
+      <a href="{% url 'home' %}">Home</a>
+      <a href="{% url 'upload' %}">Upload</a>
+      <a href="{% url 'materials' %}" class="active">Materials</a>
+      <a href="{% url 'logout' %}" class="nav-logout">Logout</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero-strip">
+  <h1>Study Materials</h1>
+  <p>Search, filter and download notes shared by students</p>
+</div>
+
+<main class="container">
+
+  <!-- SEARCH + FILTERS -->
+  <section class="filter-section">
+    <div class="search-row">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search by title, subject or course..." value="{{ search_query|default:'' }}" onkeyup="applyFilters()">
+      </div>
+      <button class="btn-search" onclick="applyFilters()">Search</button>
+      <button class="btn-reset" onclick="resetFilters()">Reset</button>
+    </div>
+
+    <div class="filter-row">
+      <div class="filter-item">
+        <label>Course</label>
+        <select id="course" onchange="applyFilters()">
+          <option value="">All Courses</option>
+          <option value="bsc">BSc</option>
+          <option value="msc">MSc</option>
+          <option value="bba">BBA</option>
+          <option value="mba">MBA</option>
+          <option value="mca">MCA</option>
+          <option value="btech">B.Tech</option>
+          <option value="bca">BCA</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label>Semester</label>
+        <select id="semester" onchange="applyFilters()">
+          <option value="">All Semesters</option>
+          {% for i in "123456" %}
+          <option value="{{ i }}">Semester {{ i }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label>Subject</label>
+        <select id="subject" onchange="applyFilters()">
+          <option value="">All Subjects</option>
+          {% for subject in subjects %}
+          <option value="{{ subject.subject_name|lower }}">{{ subject.subject_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS COUNT -->
+  <div class="results-bar">
+    <span id="results-count">
+      {% if materials %}{{ materials|length }} material(s) found{% else %}No materials found{% endif %}
+    </span>
+  </div>
+
+  <!-- MATERIALS GRID -->
+  <div id="materialsContainer" class="materials-grid">
+
+    {% if materials %}
+
+      {% for m in materials %}
+
+      <div class="material-card"
+           data-course="{{ m.uploaded_by.course|lower }}"
+           data-semester="{{ m.subject.semester|lower }}"
+           data-subject="{{ m.subject.subject_name|lower }}"
+           data-title="{{ m.title|lower }}"
+           data-description="{{ m.description|default:''|lower }}"
+           data-uploader="{{ m.uploaded_by.name|default:''|lower }}"
+           data-filepath="{{ m.file_path|default:''|lower }}">
+
+        <!-- TOP TAGS -->
+        <div class="card-top">
+          <span class="subject-tag">
+            {% if m.subject %}{{ m.subject.subject_name }}{% else %}No Subject{% endif %}
+          </span>
+          <span class="file-type">
+            {{ m.file_path|slice:"-3:"|upper }}
+          </span>
+        </div>
+
+        <!-- TITLE -->
+        <h3 class="card-title">{{ m.title }}</h3>
+
+        <!-- META INFO -->
+        <div class="card-meta">
+          <span>📘 {% if m.uploaded_by %}{{ m.uploaded_by.course }}{% endif %}</span>
+          <span>📅 {% if m.subject %}Sem {{ m.subject.semester }}{% endif %}</span>
+          <span>👤 {% if m.uploaded_by %}{{ m.uploaded_by.name }}{% endif %}</span>
+        </div>
+
+        <!-- DESCRIPTION -->
+        <p class="card-desc">
+          {% if m.description %}{{ m.description|truncatechars:100 }}{% else %}No description provided.{% endif %}
+        </p>
+
+        <!-- STATS -->
+        <div class="card-stats">
+          <span>⬇️ {{ m.downloads }} downloads</span>
+          <span>⭐ <span id="rating-{{ m.material_id }}">{{ m.rating }}</span>/5</span>
+          <span>👍 <span id="like-count-{{ m.material_id }}">{{ m.likes }}</span> likes</span>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        {% if m.material_id %}
+        <div class="card-actions">
+          <a href="/media/{{ m.file_path }}" target="_blank">
+            <button class="btn-view">👁 Preview</button>
+          </a>
+          <a href="{% url 'download_material' m.material_id %}">
+            <button class="btn-download">⬇ Download</button>
+          </a>
+        </div>
+
+        <!-- LIKE + RATE + COMMENTS -->
+        <div class="card-footer">
+          <div class="like-section">
+            <button class="btn-like {% if m.material_id in liked_ids %}liked{% endif %}"
+                    onclick="likeMaterial('{{ m.material_id }}', this)">
+              👍 Like
+            </button>
+          </div>
+          <div class="rate-section">
+            <select class="rate-select" onchange="rateMaterial('{{ m.material_id }}', this.value, this)">
+              <option value="">⭐ Rate</option>
+              <option value="1" {% if m.user_rating == 1 %}selected{% endif %}>1 ⭐</option>
+              <option value="2" {% if m.user_rating == 2 %}selected{% endif %}>2 ⭐⭐</option>
+              <option value="3" {% if m.user_rating == 3 %}selected{% endif %}>3 ⭐⭐⭐</option>
+              <option value="4" {% if m.user_rating == 4 %}selected{% endif %}>4 ⭐⭐⭐⭐</option>
+              <option value="5" {% if m.user_rating == 5 %}selected{% endif %}>5 ⭐⭐⭐⭐⭐</option>
+            </select>
+          </div>
+          <div class="comment-section">
+            <button type="button" class="btn-comment"
+                    onclick="openComments('{{ m.material_id }}', '{{ m.title|escapejs }}')"
+                    id="comment-btn-{{ m.material_id }}">
+              💬 <span id="comment-count-{{ m.material_id }}">{{ m.comment_count }}</span> Comment{{ m.comment_count|pluralize }}
+            </button>
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+
+      {% endfor %}
+
+    {% else %}
+
+      <!-- EMPTY STATE -->
+      <div class="empty-state">
+        <div class="empty-icon">📂</div>
+        <h3>No Materials Found</h3>
+        <p>Try changing your filters or <a href="{% url 'upload' %}">upload the first one!</a></p>
+      </div>
+
+    {% endif %}
+
+  </div>
+
+</main>
+
+<footer>
+  <p>© 2025 StudyHub — Built for students, by students</p>
+</footer>
+
+<div id="toast" class="toast hidden"></div>
+
+<!-- COMMENTS MODAL -->
+<div id="commentModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title-block">
+        <h3>💬 Comments</h3>
+        <p id="modalMaterialTitle" class="modal-subtitle"></p>
+      </div>
+      <button class="modal-close" onclick="closeComments()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="commentsList" class="comments-list">
+        <!-- Comments loaded via JS -->
+      </div>
+    </div>
+    <div class="modal-footer">
+      <input type="text" id="commentInput" placeholder="Write a comment..." maxlength="500">
+      <button class="btn-submit-comment" onclick="submitComment()">Post</button>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/materials.js' %}"></script>
+</body>
+</html>

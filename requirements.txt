@@ -1,0 +1,10 @@
+Django==5.2.12
+gunicorn==24.1.2
+whitenoise==6.7.0
+dj-database-url==2.3.0
+psycopg2-binary==2.9.9
+mysqlclient==2.2.6
+python-dotenv==1.2.2
+asgiref==3.8.1
+sqlparse==0.5.5
+tzdata==2025.3

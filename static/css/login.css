@@ -1,0 +1,287 @@
+/* ===========================
+   STUDYHUB — LOGIN PAGE
+   Same theme as materials page
+   =========================== */
+
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface2: #222639;
+  --accent: #6c63ff;
+  --accent2: #ff6584;
+  --text: #e8eaf0;
+  --text-muted: #8b8fa8;
+  --border: rgba(255,255,255,0.07);
+  --radius: 14px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon { font-size: 22px; }
+
+.logo-text {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+}
+
+nav {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+nav a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+nav a:hover {
+  color: var(--text);
+  background: var(--surface2);
+}
+
+/* ── PAGE WRAP ── */
+.page-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glowing background orb */
+.glow-orb {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(ellipse, rgba(108,99,255,0.12) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* ── LOGIN CARD ── */
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow);
+  position: relative;
+  animation: fadeUp 0.4s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── CARD HEADER ── */
+.card-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.card-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.card-header h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+
+.card-header p {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* ── ERROR ALERT ── */
+.alert-error {
+  background: rgba(255, 101, 132, 0.1);
+  border: 1px solid rgba(255, 101, 132, 0.3);
+  border-left: 3px solid var(--accent2);
+  color: #ff8fa8;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+/* ── FORM ── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  font-size: 15px;
+  pointer-events: none;
+}
+
+.input-wrap input {
+  width: 100%;
+  padding: 12px 16px 12px 42px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-wrap input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(108,99,255,0.1);
+}
+
+.input-wrap input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Show/hide password button */
+.toggle-pass {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.toggle-pass:hover { opacity: 1; }
+
+/* ── LOGIN BUTTON ── */
+.btn-login {
+  width: 100%;
+  padding: 13px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 6px;
+  letter-spacing: 0.3px;
+}
+
+.btn-login:hover {
+  background: #5a52e0;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(108,99,255,0.35);
+}
+
+.btn-login:active {
+  transform: translateY(0);
+}
+
+/* ── SWITCH LINK ── */
+.switch-link {
+  text-align: center;
+  margin-top: 22px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.switch-link a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.switch-link a:hover {
+  color: #a89dff;
+}
+
+/* ── FOOTER ── */
+footer {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 24px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 480px) {
+  header { padding: 0 16px; }
+  .login-card { padding: 28px 20px; }
+}
