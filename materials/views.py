@@ -27,35 +27,40 @@ def login_required_custom(view_func):
 # HOME
 # ─────────────────────────────────────────────
 def home(request):
-    # Latest 3 materials
-    latest_materials = Material.objects.select_related('subject', 'uploaded_by') \
-                                       .all() \
-                                       .order_by('-upload_date')[:3]
+    try:
+        # Latest 3 materials
+        latest_materials = Material.objects.select_related('subject', 'uploaded_by') \
+                                           .all() \
+                                           .order_by('-upload_date')[:3]
 
-    # Popular 3 materials — most downloaded
-    popular_materials = Material.objects.select_related('subject', 'uploaded_by') \
-                                        .all() \
-                                        .order_by('-downloads')[:3]
+        # Popular 3 materials — most downloaded
+        popular_materials = Material.objects.select_related('subject', 'uploaded_by') \
+                                            .all() \
+                                            .order_by('-downloads')[:3]
 
-    # # Attach avg_rating to popular materials
-    # for m in popular_materials:
-    #     m.avg_rating = m.avg_rating  # calls the property
+        # Stats for hero section
+        from django.db.models import Sum
+        total_materials  = Material.objects.count()
+        total_users      = User.objects.count()
+        
+        # Safer aggregation
+        agg = Material.objects.aggregate(total=Sum('downloads'))
+        total_downloads = agg.get('total') or 0
 
-    # Stats for hero section
-    from django.db.models import Sum
-    total_materials  = Material.objects.count()
-    total_users      = User.objects.count()
-    total_downloads  = Material.objects.aggregate(
-                          total=Sum('downloads')
-                       )['total'] or 0
-
-    return render(request, 'home.html', {
-        'latest_materials':  latest_materials,
-        'popular_materials': popular_materials,
-        'total_materials':   total_materials,
-        'total_users':       total_users,
-        'total_downloads':   total_downloads,
-    })
+        return render(request, 'home.html', {
+            'latest_materials':  latest_materials,
+            'popular_materials': popular_materials,
+            'total_materials':   total_materials,
+            'total_users':       total_users,
+            'total_downloads':   total_downloads,
+        })
+    except Exception as e:
+        # Fallback to a very simple response to avoid template errors
+        from django.http import HttpResponse
+        if settings.DEBUG:
+            return HttpResponse(f"Error: {str(e)}")
+        # If not debug, try a minimal template or just a message
+        return HttpResponse("<h1>Welcome to StudyHub</h1><p>The site is currently undergoing maintenance. Please check back soon.</p>")
 
 def register_view(request):
     if request.method == 'POST':

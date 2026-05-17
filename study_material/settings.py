@@ -30,7 +30,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-*d0@nd&)3l=vgoagmd3)c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*'] # In production, replace '*' with your actual domain
+ALLOWED_HOSTS = ['*']
+if 'RENDER_EXTERNAL_HOSTNAME' in os.environ:
+    ALLOWED_HOSTS.append(os.environ.get('RENDER_EXTERNAL_HOSTNAME'))
+
+CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com', 'https://*.vercel.app']
 
 
 # Application definition
@@ -42,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'whitenoise.runserver_nostatic',
     'materials',
 ]
 
@@ -121,7 +126,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
@@ -130,6 +135,16 @@ STATICFILES_DIRS = [
 ]
 
 # Enable WhiteNoise compression and caching
+STORAGES = {
+    "default": {
+        "BACKEND": "django.db.models.fields.files.FileField", 
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+# For older Django versions support (just in case)
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
