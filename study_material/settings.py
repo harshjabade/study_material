@@ -84,9 +84,12 @@ WSGI_APPLICATION = 'study_material.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+is_vercel = os.environ.get('VERCEL') == '1'
+sqlite_path = '/tmp/db.sqlite3' if is_vercel else BASE_DIR / 'db.sqlite3'
+
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL', f'sqlite:///{BASE_DIR / "db.sqlite3"}'),
+        default=os.environ.get('DATABASE_URL', f'sqlite:///{sqlite_path}'),
         conn_max_age=600
     )
 }
@@ -140,12 +143,12 @@ STORAGES = {
         "BACKEND": "django.db.models.fields.files.FileField", 
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 
 # For older Django versions support (just in case)
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
